@@ -1,10 +1,10 @@
 from copy import deepcopy
 import numpy as np
 
-from ga_proj.cifo.problem.problem_template import ProblemTemplate
-from cifo.problem.objective import ProblemObjective
-from cifo.problem.solution import LinearSolution
-from cifo.algorithm.hill_climbing import HillClimbing
+from ga_proj.problem.problem_template import ProblemTemplate
+from ga_proj.problem.objective import ProblemObjective
+from ga_proj.problem.solution import LinearSolution
+from ga_proj.algorithm.hill_climbing import HillClimbing
 
 key_encoding_rule = {
     "Size"         : 37,  # Number of keyboard possible keys
