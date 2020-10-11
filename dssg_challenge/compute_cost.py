@@ -8,7 +8,7 @@ import heapq
 import numpy as np
 
 
-from utils import check_keyboard, compute_cell_location
+from .utils import check_keyboard, compute_cell_location
 
 
 def get_args():
@@ -33,6 +33,9 @@ def get_args():
 
 def compute_cost(keyboard, corpus):
     """Computes the cost of using a keyboard for a certain corpus"""
+
+    # Initialize the variables
+    COORDS = compute_cell_location()
 
     mapping = {k: [] for k in set(keyboard)
                if k != ''}
@@ -80,9 +83,6 @@ if __name__ == '__main__':
     # Get the corpus
     with open(ARGS.corpus, 'r') as f:
         CORPUS = f.read().strip()
-
-    # Initialize the variables
-    COORDS = compute_cell_location()
 
     # Read the assigment
     ASSIGNMENT = ARGS.keyboard

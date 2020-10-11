@@ -7,7 +7,7 @@
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROFILE = default
-PROJECT_NAME = dssgsummit2020-challenge
+PROJECT_NAME = als-dssg
 PYTHON_INTERPRETER = python3
 
 ifeq (,$(shell which conda))

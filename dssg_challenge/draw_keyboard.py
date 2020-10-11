@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-from utils import check_keyboard, compute_cell_location
+from .utils import check_keyboard, compute_cell_location
 
 
 def get_args():
