@@ -1,7 +1,7 @@
 from copy import deepcopy
 import numpy as np
 
-from cifo.problem.problem_template import ProblemTemplate
+from ga_proj.cifo.problem.problem_template import ProblemTemplate
 from cifo.problem.objective import ProblemObjective
 from cifo.problem.solution import LinearSolution
 from cifo.algorithm.hill_climbing import HillClimbing
