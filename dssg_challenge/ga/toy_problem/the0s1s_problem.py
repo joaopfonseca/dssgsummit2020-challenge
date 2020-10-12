@@ -21,8 +21,8 @@ Author: Fernando A J Peres - fperes@novaims.unl.pt - (2019) version L4.0
 from copy import deepcopy
 from random import randint
 
-from cifo.problem.problem_template import ProblemTemplate, ProblemObjective
-from cifo.problem.solution import LinearSolution, Encoding
+from dssg_challenge.ga.problem.problem_template import ProblemTemplate, ProblemObjective
+from dssg_challenge.ga.problem.solution import LinearSolution, Encoding
 
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
 # C O D E

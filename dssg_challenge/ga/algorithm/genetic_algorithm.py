@@ -19,19 +19,17 @@ Author: Fernando A J Peres - fperes@novaims.unl.pt - (2019) version L4.0
 from random import random
 from copy import deepcopy
 
-from cifo.algorithm.ga_operators import (initialize_using_random,
-                                         rank_selection, roulettewheel_selection, tournament_selection,
-                                         singlepoint_crossover,
-                                         single_point_mutation,
-                                         standard_replacement, elitism_replacement
-                                         )
+from dssg_challenge.ga.algorithm.ga_operators import (initialize_using_random,
+rank_selection, roulettewheel_selection, tournament_selection,
+singlepoint_crossover, single_point_mutation, standard_replacement, 
+elitism_replacement)
 
-from cifo.problem.population import Population
-from cifo.problem.objective import ProblemObjective
+from dssg_challenge.ga.problem.population import Population
+from dssg_challenge.ga.problem.objective import ProblemObjective
 
-from cifo.util.terminal import Terminal, FontColor
+from dssg_challenge.ga.util.terminal import Terminal, FontColor
 
-from cifo.util.logger import GeneticAlgorithmLogger
+from dssg_challenge.ga.util.logger import GeneticAlgorithmLogger
 
 
 

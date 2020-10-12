@@ -5,9 +5,10 @@
 # - class ProblemTest
 # -------------------------------------------------------------------------------------------------
 
-from cifo.problem.solution import LinearSolution
-from cifo.problem.problem_template import ProblemTemplate 
-from cifo.util.terminal import Terminal, FontColor
+from dssg_challenge.ga.problem.solution import LinearSolution
+from dssg_challenge.ga.problem.problem_template import ProblemTemplate 
+from dssg_challenge.ga.util.terminal import Terminal, FontColor
+from dssg_challenge.ga.custom_problem.alskeyboard_problem import AlsKeyboardProblem
 
 # -------------------------------------------------------------------------------------------------
 # Class: Problem Test
@@ -36,7 +37,7 @@ class ProblemTest:
             print( "ERROR: " + self._problem_instance.objective)
             self._errors.append()
 
-        print( f" Multi-objective = {self._problem_instance.is_multi_objective}" )
+        # print( f" Multi-objective = {self._problem_instance.is_multi_objective}" )
 
         print( f" Encoding Rule = {self._problem_instance.encoding_rule }" )
 
@@ -69,7 +70,7 @@ class ProblemTest:
             try:
                 solution = self._problem_instance.build_solution()
                 is_admissible = self._problem_instance.is_admissible( solution )
-                print(f"solution = {solution.representation}  - Is admissible? {is_admissible}" )
+                print(f"solution = {solution.representation} - Is admissible? {is_admissible}" )
             except:
                 self._errors.append("Is admissible solution Failed!")
                 if solution == None: print(" - Error: Check if build solution is OK or if it was implemented")
@@ -122,3 +123,7 @@ class NeighborhoodFunctionTest:
             
             for neighbor in neighbors:
                 print(f"             {neighbor.representation} ")
+
+
+if __name__ == "__main__":
+    ProblemTest(AlsKeyboardProblem()).run()

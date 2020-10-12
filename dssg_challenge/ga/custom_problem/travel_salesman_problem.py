@@ -2,10 +2,10 @@ from copy import deepcopy
 import numpy as np
 import heapq
 
-from cifo.problem.problem_template import ProblemTemplate
-from cifo.problem.objective import ProblemObjective
-from cifo.problem.solution import LinearSolution
-from cifo.algorithm.hill_climbing import HillClimbing
+from dssg_challenge.ga.problem.problem_template import ProblemTemplate
+from dssg_challenge.ga.problem.objective import ProblemObjective
+from dssg_challenge.ga.problem.solution import LinearSolution
+from dssg_challenge.ga.algorithm.hill_climbing import HillClimbing
 
 tsp_encoding_rule = {
     "Size"         : -1,  # Number of the cities from the distance matrix

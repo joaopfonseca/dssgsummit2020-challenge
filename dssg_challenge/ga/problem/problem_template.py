@@ -19,8 +19,8 @@ Author: Fernando A J Peres - fperes@novaims.unl.pt - (2019) version L4.0
 
 from random import choice
 from copy import deepcopy
-from cifo.problem.solution import LinearSolution, Encoding
-from cifo.problem.objective import ProblemObjective
+from dssg_challenge.ga.problem.solution import LinearSolution, Encoding
+from dssg_challenge.ga.problem.objective import ProblemObjective
 
 #──────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 # Class: Problem Template Base Class (Super-class)

@@ -1,4 +1,4 @@
-from cifo.util.terminal import Terminal, FontColor
+from dssg_challenge.ga.util.terminal import Terminal, FontColor
 import sys
 
 class LocalSearchObserver():

@@ -1,4 +1,4 @@
-from cifo.problem.objective import ProblemObjective
+from dssg_challenge.ga.problem.objective import ProblemObjective
 
 # -------------------------------------------------------------------------------------------------
 # Population Class

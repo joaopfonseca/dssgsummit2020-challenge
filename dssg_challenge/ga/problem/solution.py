@@ -24,7 +24,7 @@ Author: Fernando A J Peres - fperes@novaims.unl.pt - (2019) version L4.0
 # import
 import numpy as np
 from copy import deepcopy
-from cifo.problem.objective import ProblemObjective
+from dssg_challenge.ga.problem.objective import ProblemObjective
 
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
 # C O D E
@@ -118,6 +118,7 @@ class Encoding():
             "Data"         : <LIST>
             "Data Type"    : <STRING: "Choices" or "Interval">
             "Precision"    : <INTEGER>                                  # JUST FOR PIP!!
+            "
         }
 
         """

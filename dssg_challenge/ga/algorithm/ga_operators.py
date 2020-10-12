@@ -4,9 +4,9 @@ import numpy as np
 import math
 import heapq
 
-from cifo.problem.objective import ProblemObjective
-from cifo.problem.solution import EncodingDataType, LinearSolution
-from cifo.problem.population import Population
+from dssg_challenge.ga.problem.objective import ProblemObjective
+from dssg_challenge.ga.problem.solution import EncodingDataType, LinearSolution
+from dssg_challenge.ga.problem.population import Population
 
 
 ###################################################################################################

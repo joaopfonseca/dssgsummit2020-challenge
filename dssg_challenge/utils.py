@@ -5,13 +5,13 @@ Auxiliary functions for the ALS keyboard challenge
 import numpy as np
 
 
-def check_keyboard(keyboard, valid_chars):
+def check_keyboard(keyboard, valid_chars, size=37):
     """Validates if the keyboard is valid based on a set of valid characters
     """
 
-    assert len(keyboard) == 37
+    assert len(keyboard) == size
     assert all([x in valid_chars for x in keyboard])
-    assert all([x in keyboard for x in valid_chars])
+    assert all([x in keyboard for x in valid_chars.replace("_", "")])  # keyboard don't need to have "_"
 
 
 def compute_cell_location():

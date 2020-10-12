@@ -2,9 +2,9 @@ from random import randint
 import numpy as np
 from pandas import read_excel
 
-from cifo.problem.problem_template import ProblemTemplate
-from cifo.problem.objective import ProblemObjective
-from cifo.problem.solution import PIP_Solution
+from dssg_challenge.ga.problem.problem_template import ProblemTemplate
+from dssg_challenge.ga.problem.objective import ProblemObjective
+from dssg_challenge.ga.problem.solution import PIP_Solution
 
 pip_encoding_rule = {
     "Size": -1,  # It must be defined by the size of DV (Number of products)

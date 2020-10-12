@@ -26,9 +26,9 @@ Author: Fernando A J Peres - fperes@novaims.unl.pt - (2019) version L4.0
 from copy import deepcopy
 from random import choice, randint
 
-from cifo.problem.problem_template import ProblemTemplate
-from cifo.problem.objective import ProblemObjective
-from cifo.problem.solution import LinearSolution, Encoding
+from dssg_challenge.ga.problem.problem_template import ProblemTemplate
+from dssg_challenge.ga.problem.objective import ProblemObjective
+from dssg_challenge.ga.problem.solution import LinearSolution, Encoding
 
 
 knapsack_encoding_rule = {

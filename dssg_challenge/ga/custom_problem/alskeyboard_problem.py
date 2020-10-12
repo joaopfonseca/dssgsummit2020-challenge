@@ -1,80 +1,86 @@
 from copy import deepcopy
-import numpy as np
+import logging
+import random 
+import os
 
-from ga_proj.problem.problem_template import ProblemTemplate
-from ga_proj.problem.objective import ProblemObjective
-from ga_proj.problem.solution import LinearSolution
-from ga_proj.algorithm.hill_climbing import HillClimbing
+from dssg_challenge import compute_cost, utils
+from dssg_challenge.ga.problem.problem_template import ProblemTemplate
+from dssg_challenge.ga.problem.objective import ProblemObjective
+from dssg_challenge.ga.problem.solution import LinearSolution
+from dssg_challenge.ga.algorithm.hill_climbing import HillClimbing
+
+# TODO: set logs instead of prints
 
 key_encoding_rule = {
-    "Size"         : 37,  # Number of keyboard possible keys
+    "Size"         : 37,  # Number of keyboard possible keys - fixed
     "Is ordered"   : True,
     "Can repeat"   : True,
-    "Data"         : [0, 0],  # must be defined by the data
+    "Data"         : "",  # must be updated by the decision variable Valid_keys
     "Data Type"    : "Pattern"
 }
 
 # Default corpus
-input_en = []
-input_pt = []
+default_corpus = "THIS IS K<THE LIST OF VALID CHARS #ABCDEFGHIJKLMNOPQ RSTUVWXYZ0.#,^?<#0THIS COMPETITION P<IS ORGANIZED TOGETHER WITH THE DSSG SUMMIT ####.0^ITS GOAL IS TO OPTIMIZE A KEYBOARD LAYOUT TO MINIMIZE THE Y<WORKLOAD FOR USAGE BY AN ALS PATIENT. ^THIS WAS MOTIVATEM<D BY ANTHONY CARBAJAL, A FULL#TIME DAILY LIFE HACKER THAT AIMS TO FIND INNOVATIVE Z<WAYS TO IMPROVE HIS #<AND OTHER ALS#PATIENT LIVES, WITH WHOM K<WE WORKED TOGETHER FOR 0<DEVELOPING A FIRST VERSION J<OF THIS SOLUTION.0^YOU WILL N<WORK IN CREATING INNOVATIVE P<SOLUTIONS TO K<THE PROBLEM WE TRIED TO SOLVE#0"
+default_keys = "ABCDEFGHIJKLMNOPQ RSTUVWXYZ0.#,^?<" + "_"  # necessary to include "_" even though it's optional. GA will then decide whether to include it or note
 
-tsp_decision_variables_example = {
-    "Distances": np.array(input),
-    "Item-Name": [i for i in range(1, len(input[0]))]  # << String, Optional, The names of the items, can be used to
-                                                        # present the solution.
-        # It starts at 1 reserving the 0 for the static city
-        # We are setting the departure point, so we only have to arrange the 12 remaining cities
+key_decision_variables_example = {
+    "Corpus": default_corpus,
+    "Valid_keys": default_keys
 }
 
-# REMARK: There is no constraint
+key_constraints_example = {
+    "Exaustiveness" : True  # Constrains solutions to have at least one of each valid character
+}
 
- # -------------------------------------------------------------------------------------------------
-# TSP - Travel Salesman Problem
 # -------------------------------------------------------------------------------------------------
-class TravelSalesmanProblem(ProblemTemplate):
+# ALS Keyboard Problem
+# -------------------------------------------------------------------------------------------------
+class AlsKeyboardProblem(ProblemTemplate):
     """
-    Travel Salesman Problem: Given a list of cities and the distances between each pair of cities, what is the shortest
-    possible route that visits each city and returns to the origin city?
+    ALS Keyboard Problem: Given an input corpus, what is the arrangement of keys of a given keyboard layout that 
+    minimizes the writting effort?
     """
 
     # Constructor
     #----------------------------------------------------------------------------------------------
-    def __init__(self, decision_variables=tsp_decision_variables_example, constraints=None,
-                 encoding_rule=tsp_encoding_rule):
+    def __init__(self, decision_variables=key_decision_variables_example, constraints=key_constraints_example,
+                 encoding_rule=key_encoding_rule):
         """
         - Defines:
-            - the Size and the Encoding characters (Data) according to the input distances matrix
-            - the objective type (Max or Min)
-            - the problem name
+            - Data according to the input corpus
+            - Objective type (Max or Min)
+            - Problem name
         - Optimizes the access to the decision variables
         """
         # optimize the access to the decision variables
-        self._distances = np.array([])
-        if "Distances" in decision_variables:
-            self._distances = decision_variables["Distances"]
+        self._corpus = ""
+        if "Corpus" in decision_variables:
+            self._corpus = decision_variables["Corpus"]
+        
+        self._valid_keys = ""
+        if "Valid_keys" in decision_variables:
+            self._valid_keys = decision_variables["Valid_keys"]
+        
+        # optimize the access to the constraints
+        self._exaustive = True 
+        if "Exaustiveness" in constraints:
+            assert constraints["Exaustiveness"]
+            
+        # update encoding_rule given decision variables to pass to Parent's constructor
+        encoding_rule["Data"] = decision_variables["Valid_keys"]
 
-        encoding_rule["Size"] = len(self._distances) - 1
-        encoding_rule["Data"] = decision_variables["Item-Name"]
-
-        # Call the Parent-class constructor to store these values and to execute any other logic to be implemented by
-        # the constructor of the super-class
+        # call the Parent-class constructor 
         super().__init__(
             decision_variables = decision_variables,
             constraints = constraints,
             encoding_rule = encoding_rule
         )
 
-        # 1. Define the Name of the Problem
-        self._name = "Travel Salesman Problem"
-
-        # 2. Define the Problem Objective
+        # Additional attributes
+        self._name = "ALS Keyboard Problem"
         self._objective = ProblemObjective.Minimization
 
-    @property
-    def distances(self):
-        return self._distances
-
-    # Build Solution for Travel Salesman Problem
+    # Build Solution for ALS Keyboard Problem
     #----------------------------------------------------------------------------------------------
     def build_solution(self, method='Random'):
         """
@@ -82,193 +88,131 @@ class TravelSalesmanProblem(ProblemTemplate):
         following available methods:
             - 'Hill Climbing'
             - 'Random' (default method)
-            - 'Greedy'
         """
-        if method == 'Random':  # shuffles the list and then instantiates it as a Linear Solution
-            encoding_data = self._encoding.encoding_data
+        if method == 'Random':
 
-            solution_representation = encoding_data.copy()
-            np.random.shuffle(solution_representation)  # inplace shuffle
+            # Creates a list of characters with the correct number of characters and at least one of each of the valid characters
+            solution_representation = list(self._valid_keys) + \
+                random.choices(self._valid_keys, k=(self._encoding.size - len(self._valid_keys)))
+            random.shuffle(solution_representation)  # shuffles the string characters
 
             solution = LinearSolution(
                 representation=solution_representation,
                 encoding_rule=self._encoding_rule
             )
-
-            return solution
-        elif method == 'Hill Climbing':
-
-            solution = HillClimbing(
-                        problem_instance=self,
-                        neighborhood_function=self.tsp_get_neighbors_np
-                        ).search()
-            #TODO: allow changes in params for Hill Climbing
-
-            return solution
-        #elif method == 'Simulated Annealing': TODO: build SA initialization
-        #    return solution
-        elif method == 'Greedy':
-            # get a random solution where we will keep the first element
-            initial_solution = np.array(self.build_solution(method='Random').representation)
-            copy = initial_solution.copy()
-
-            element = initial_solution[0]
-
-            # i can not reach the last position because there is no more cities to evaluate
-            for i in range(1, (len(initial_solution)-1)):
-                distance_array = np.array(heapq.nsmallest(len(initial_solution), self._distances[element]))
-
-                # get the index (item name) of the second smallest distance between element in index i and all the other cities
-                closest_city = np.argwhere(self._distances[element] == distance_array[1])[0][0]
-
-                if closest_city == 0:  # the closest city can not be our first city on the matrix
-                    closest_city = np.argwhere(self._distances[element] == distance_array[2])[0][0]
-
-                n = 2  # let us to go through the distance ascending list
-
-                # while the closest city is already in the changed slice of the initial_solution, we have to keep looking
-                while closest_city in initial_solution[0:i]:
-                    # get the next closest city in the distance ascending list with the element evaluated
-                    closest_city = np.argwhere(self._distances[element] == distance_array[n])[0][0]
-
-                    if closest_city == 0:  # the closest city can not be our first city on the matrix
-                        closest_city = np.argwhere(self._distances[element] == distance_array[n+1])[0][0]
-
-                        n += 1  # if it is not a valid closest city the n should be plus one than the usual
-
-                    n += 1
-
-                # change the current position in initial_solution with the closest_city
-                initial_solution[i] = closest_city
-
-                # get the next element to evaluate the closest city
-                element = initial_solution[i]
-
-            # change the last index with the missing element
-            initial_solution[-1] = np.setdiff1d(copy, initial_solution[0:-1], assume_unique=True)[0]
-
-            #print('greedy solutions: ', list(initial_solution))
-            solution = LinearSolution(
-                representation=list(initial_solution),
-                encoding_rule=self._encoding_rule
-            )
-
             return solution
         else:
-            print('Please choose one of these methods: Hill Climbing, Greedy, Random or Multiple. It will use the Random method')
-            return self.build_solution()
+            raise Exception("No {} method available. Currently only 'Random' method is implemented.".format(method))
+        # elif method == 'Hill Climbing':
 
+        #     solution = HillClimbing(
+        #                 problem_instance=self,
+        #                 neighborhood_function=self.tsp_get_neighbors_np  # CODE HERE (pass neighborhood function)
+        #                 ).search()
+        #     #TODO: allow changes in params for Hill Climbing
+
+        #     return solution
+        #elif method == 'Simulated Annealing': TODO: build SA initialization
+        #    return solution
 
     # Solution Admissibility Function - is_admissible()
     #----------------------------------------------------------------------------------------------
-    def is_admissible(self, solution, debug=True):  # << use this signature in the sub classes, the meta-heuristic
+    def is_admissible(self, solution, debug=True):
         """
-        Checks if the solution:
-            - has unique values equal to the size of the encoding_rule
-            - has length equal to the size of the encoding_rule
-            - has all values within the defined range of item-names
+        Checks if:
+            - the solution has the correct size
+            - the solution has every valid character
+            - the set of valid characters has every character from the solution
         If all these conditions are true, the solution is admissible and it returns True.
         """
         if debug:
-            result = False
-
-            if (len(set(solution.representation)) == self.encoding_rule["Size"]) & \
-                    (len(solution.representation) == self.encoding_rule["Size"]) & \
-                    all([True if i in range(1, (self.encoding_rule["Size"]+1))
-                         else False for i in solution.representation]):
-                result = True
+            try:
+                utils.check_keyboard(solution.representation, self._valid_keys, self._encoding.size)
+            except:
+                print('Invalid Solution: ', solution.representation)  # Replace by log
+                return False
             else:
-                print('Error: Solution ' + str(solution.representation) + ' Result ' + str(result))
-
-            return result
+                return True
         else:
             return True
 
     # Evaluate_solution()
     #-------------------------------------------------------------------------------------------------------------
-    # It should be seen as an abstract method 
-    def evaluate_solution(self, solution, feedback=None):  # << This method does not need to be extended, it already
-                                        # automated solutions evaluation, for Single-Objective and for Multi-Objective
+    def evaluate_solution(self, solution, feedback=None):
         """
-        Calculates the total distance of the defined route
+        Evaluates the solution provided
         """
-        distances = self._distances
         rep = solution.representation
-
-        fitness = distances[0, rep[0]] + distances[rep[-1], 0]  # the distances are assymmetric
-            # distance from the departure point (position 0 in the matrix) to the first city(position 0 in the solution)
-            # plus
-            # distance from the last city to the departure point (position 0 in the solution)
-
-        for i in range(0, (len(rep)-1)):
-            fitness += distances[rep[i], rep[i+1]]
-
+        fitness = compute_cost(rep, self._corpus)
         solution._fitness = fitness
         solution._is_fitness_calculated = True
 
         return solution
 
+    @property
+    def corpus(self):
+        return self._corpus
 # -------------------------------------------------------------------------------------------------
 # OPTIONAL - it is only needed if you will implement Local Search Methods
 #            (Hill Climbing and Simulated Annealing)
 # -------------------------------------------------------------------------------------------------
-    def tsp_get_neighbors_np(self, solution, problem, neighborhood_size=0, n_changes=3):
-        initial_sol = np.asarray(solution.representation)       # change to numpy array for performance
-        neighbors_np = [initial_sol]                            # list of numpy arrays for performance
+#     def tsp_get_neighbors_np(self, solution, problem, neighborhood_size=0, n_changes=3):
+#         initial_sol = np.asarray(solution.representation)       # change to numpy array for performance
+#         neighbors_np = [initial_sol]                            # list of numpy arrays for performance
 
-        def n_change(list_solutions):
-            neighbors = []
+#         def n_change(list_solutions):
+#             neighbors = []
 
-            for k in list_solutions:                            # find all neighbors
-                for l in range(0, len(k)):
-                    for j in range((l + 1), len(k)):
-                        neighbor = np.copy(k)
-                        neighbor[l], neighbor[j] = neighbor[j], neighbor[l]
-                        neighbors.append(neighbor)
+#             for k in list_solutions:                            # find all neighbors
+#                 for l in range(0, len(k)):
+#                     for j in range((l + 1), len(k)):
+#                         neighbor = np.copy(k)
+#                         neighbor[l], neighbor[j] = neighbor[j], neighbor[l]
+#                         neighbors.append(neighbor)
 
-            return neighbors
+#             return neighbors
 
-        for i in range(0, n_changes):                       # How many swaps to allow,
-            neighbors_np = n_change(neighbors_np)           # This escalates fast!!! one should be more than enough
+#         for i in range(0, n_changes):                       # How many swaps to allow,
+#             neighbors_np = n_change(neighbors_np)           # This escalates fast!!! one should be more than enough
 
-                                                            # convert back to linear solution for evaluation
-        neighbors_final = []
-        for sol in neighbors_np:
-            sol = sol.tolist()
-            solution = LinearSolution(
-                representation=sol,
-                encoding_rule=self._encoding_rule
-            )
-            neighbors_final.append(solution)
+#                                                             # convert back to linear solution for evaluation
+#         neighbors_final = []
+#         for sol in neighbors_np:
+#             sol = sol.tolist()
+#             solution = LinearSolution(
+#                 representation=sol,
+#                 encoding_rule=self._encoding_rule
+#             )
+#             neighbors_final.append(solution)
 
-        return neighbors_final                              # return a list of solutions
+#         return neighbors_final                              # return a list of solutions
 
-def tsp_get_neighbors(solution, problem, neighborhood_size = 0, n_changes=1):
-    neighbors_final = [solution]
+# def tsp_get_neighbors(solution, problem, neighborhood_size = 0, n_changes=1):
+#     neighbors_final = [solution]
 
-    def n_change(list_solutions):
-        neighbors = []
+#     def n_change(list_solutions):
+#         neighbors = []
 
-        for k in list_solutions:
-            for l in range(0, len(k.representation)):
-                for j in range((l+1), len(k.representation)):
-                    neighbor = deepcopy(k)
+#         for k in list_solutions:
+#             for l in range(0, len(k.representation)):
+#                 for j in range((l+1), len(k.representation)):
+#                     neighbor = deepcopy(k)
 
-                    neighbor.representation[l], neighbor.representation[j] = neighbor.representation[j], \
-                                                                             neighbor.representation[l]
-                    #if neighbor.representation not in list(map(lambda x: x.representation, neighbors)):
-                    neighbors.append(neighbor)
+#                     neighbor.representation[l], neighbor.representation[j] = neighbor.representation[j], \
+#                                                                              neighbor.representation[l]
+#                     #if neighbor.representation not in list(map(lambda x: x.representation, neighbors)):
+#                     neighbors.append(neighbor)
 
-        #neighbors = [n for n in neighbors if list(map(lambda x: x.representation, neighbors)).count(n.representation) > 1]
+#         #neighbors = [n for n in neighbors if list(map(lambda x: x.representation, neighbors)).count(n.representation) > 1]
 
-        return neighbors
+#         return neighbors
 
-    for i in range(0, n_changes):
-        neighbors_final = n_change(neighbors_final)
-        print(str(len(neighbors_final))+"i="+str(i))
+#     for i in range(0, n_changes):
+#         neighbors_final = n_change(neighbors_final)
+#         print(str(len(neighbors_final))+"i="+str(i))
 
-    #if solution in neighbors_final:                # slower than evaluating the solution also
-    #    neighbors_final.remove(solution)
+#     #if solution in neighbors_final:                # slower than evaluating the solution also
+#     #    neighbors_final.remove(solution)
 
-    return neighbors_final
+#     return neighbors_final
 

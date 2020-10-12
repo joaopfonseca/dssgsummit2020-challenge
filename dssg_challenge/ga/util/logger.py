@@ -28,8 +28,8 @@ class GeneticAlgorithmLogger:
     #----------------------------------------------------------------------------------------------  
     def save(self):
         
-        final_log_dir   = str(self._log_dir) + str(self._log_name)
-        file_name = f"/run_{self._run}.xlsx"  
+        final_log_dir   = os.path.join(str(self._log_dir), str(self._log_name))
+        file_name = f"run_{self._run}.xlsx"  
         
         print(f'log: {final_log_dir + file_name}')
 
@@ -47,4 +47,4 @@ class GeneticAlgorithmLogger:
         if not os.path.exists(final_log_dir):
             os.mkdir(final_log_dir)
 
-        df.to_excel(final_log_dir + file_name, index = False, encoding = 'utf-8')
+        df.to_excel(os.path.join(final_log_dir, file_name), index = False, encoding = 'utf-8')
