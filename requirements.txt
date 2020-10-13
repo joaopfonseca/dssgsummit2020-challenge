@@ -16,9 +16,10 @@ matplotlib
 pandas
 openpyxl
 xlrd
+scikit-learn
+deap
 
 # optional
 notebook
 nbconvert==5.4.1
-deap
 
