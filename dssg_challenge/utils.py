@@ -9,9 +9,9 @@ def check_keyboard(keyboard, valid_chars, size=37):
     """Validates if the keyboard is valid based on a set of valid characters
     """
 
-    assert len(keyboard) == size
-    assert all([x in valid_chars for x in keyboard])
-    assert all([x in keyboard for x in valid_chars.replace("_", "")])  # keyboard don't need to have "_"
+    assert len(keyboard) == size, "Incorrect size"
+    assert all([x in valid_chars + "_" for x in keyboard]), "Character in keyboard not in valid_chars"
+    assert all([x in keyboard for x in valid_chars]), "character in valid_chars not in keyboard"
 
 
 def compute_cell_location():

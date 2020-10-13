@@ -24,7 +24,7 @@ with open(join(".", "data", "raw", "en-corpus.txt")) as file:
     en_corpus = file.read()[:-1]  # get rid of "\n"
 
 with open(join(".", "data", "raw", "en-keys.txt")) as file:
-    en_keys = file.read()[:-1] + "_"  # get rid of "\n" and add "_"
+    en_keys = file.read()[:-1]  # get rid of "\n"
 
 en_key_decision_variables = {
     "Corpus": en_corpus,
@@ -35,7 +35,7 @@ with open(join(".", "data", "raw", "pt-corpus.txt")) as file:
     pt_corpus = file.read()[:-1]  # get rid of "\n"
 
 with open(join(".", "data", "raw", "pt-keys.txt")) as file:
-    pt_keys = file.read()[:-1] + "_"  # get rid of "\n" and add "_"
+    pt_keys = file.read()[:-1]  # get rid of "\n"
 
 pt_key_decision_variables = {
     "Corpus": pt_corpus,
@@ -133,9 +133,6 @@ def one_combination(problem_instance, params, param_labels, sample_size=30,
         df.to_excel(writer, sheet_name='Fitness', index=False, encoding='utf-8')
         pd.DataFrame([[overall_best_solution.representation, overall_best_solution.fitness]], columns=["Representation", "Fitness"]).\
             to_excel(writer, sheet_name='Overall_Best_Solution', index=False)
-    
-    print("\nEnding one combination run...\n")
-
 
 # Parameter Configuration
 #--------------------------------------------------------------------------------------------------
@@ -146,7 +143,7 @@ param_grid = ParameterGrid(
         "Initialization-Approach": [initialize_using_random],
         "Selection-Approach": [tournament_selection],
         "Crossover-Approach": [cycle_crossover, pmx_crossover, order1_crossover],  # multiple_crossover, heuristic_crossover, 
-        "Mutation-Approach": [inversion_mutation, multiple_mutation, swap_mutation, insert_mutation, scramble_mutation],  # multiple_mutation, greedy_mutation, 
+        "Mutation-Approach": [inversion_mutation, swap_mutation, insert_mutation, scramble_mutation],  # multiple_mutation, greedy_mutation, 
         "Replacement-Approach": [elitism_replacement, standard_replacement],
         "Crossover-Probability": [0.1, 0.9, 0.95, 0.05],
         "Mutation-Probability": [0.95, 0.9, 0.1, 0.05],
@@ -196,11 +193,9 @@ param_labels = {
 num_comb = len(list(param_grid))
 print("The Parameter Grid has {} combinations".format(num_comb))
 for i, params in enumerate(param_grid):
-    print(f"Starting run number {i}")
-    one_combination(pt_alskeyboard_problem_instance, params, param_labels, sample_size=3, 
+    print(f"\nStarting run number {i}")
+    one_combination(pt_alskeyboard_problem_instance, params, param_labels, sample_size=1, 
                     log_run_dir=join(".", "data", "log_run_pt"), log_all_dir=join(".", "data", "log_all_pt"))
     print("\n--------------------------------------------------------------------------------------------------\n")
-    one_combination(en_alskeyboard_problem_instance, params, param_labels, sample_size=3, 
+    one_combination(en_alskeyboard_problem_instance, params, param_labels, sample_size=1, 
                     log_run_dir=join(".", "data", "log_run_en"), log_all_dir=join(".", "data", "log_all_en"))
-    # TODO: Figure out why we get invalid solutions in en but not in pt
-    print(f"\n{i}/{num_comb} runs done.")

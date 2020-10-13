@@ -21,7 +21,7 @@ key_encoding_rule = {
 
 # Default corpus
 default_corpus = "THIS IS K<THE LIST OF VALID CHARS #ABCDEFGHIJKLMNOPQ RSTUVWXYZ0.#,^?<#0THIS COMPETITION P<IS ORGANIZED TOGETHER WITH THE DSSG SUMMIT ####.0^ITS GOAL IS TO OPTIMIZE A KEYBOARD LAYOUT TO MINIMIZE THE Y<WORKLOAD FOR USAGE BY AN ALS PATIENT. ^THIS WAS MOTIVATEM<D BY ANTHONY CARBAJAL, A FULL#TIME DAILY LIFE HACKER THAT AIMS TO FIND INNOVATIVE Z<WAYS TO IMPROVE HIS #<AND OTHER ALS#PATIENT LIVES, WITH WHOM K<WE WORKED TOGETHER FOR 0<DEVELOPING A FIRST VERSION J<OF THIS SOLUTION.0^YOU WILL N<WORK IN CREATING INNOVATIVE P<SOLUTIONS TO K<THE PROBLEM WE TRIED TO SOLVE#0"
-default_keys = "ABCDEFGHIJKLMNOPQ RSTUVWXYZ0.#,^?<" + "_"  # necessary to include "_" even though it's optional. GA will then decide whether to include it or note
+default_keys = "ABCDEFGHIJKLMNOPQ RSTUVWXYZ0.#,^?<"
 
 key_decision_variables_example = {
     "Corpus": default_corpus,
@@ -67,7 +67,7 @@ class AlsKeyboardProblem(ProblemTemplate):
             assert constraints["Exaustiveness"]
             
         # update encoding_rule given decision variables to pass to Parent's constructor
-        encoding_rule["Data"] = decision_variables["Valid_keys"]
+        encoding_rule["Data"] = decision_variables["Valid_keys"] + "_"
 
         # call the Parent-class constructor 
         super().__init__(
@@ -93,7 +93,7 @@ class AlsKeyboardProblem(ProblemTemplate):
 
             # Creates a list of characters with the correct number of characters and at least one of each of the valid characters
             solution_representation = list(self._valid_keys) + \
-                random.choices(self._valid_keys, k=(self._encoding.size - len(self._valid_keys)))
+                random.choices(self._encoding.encoding_data, k=(self._encoding.size - len(self._valid_keys)))
             random.shuffle(solution_representation)  # shuffles the string characters
 
             solution = LinearSolution(
@@ -129,7 +129,7 @@ class AlsKeyboardProblem(ProblemTemplate):
             try:
                 utils.check_keyboard(solution.representation, self._valid_keys, self._encoding.size)
             except:
-                print('Invalid Solution: ', solution.representation)  # Replace by log
+                # print('Invalid Solution: ', solution.representation)  # Replace by log
                 return False
             else:
                 return True
