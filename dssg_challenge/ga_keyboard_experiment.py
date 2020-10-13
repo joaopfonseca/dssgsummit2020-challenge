@@ -196,7 +196,7 @@ print("The Parameter Grid has {} combinations".format(num_comb))
 
 # Isto é memo daquelas soluções à padeiro lol
 # Depois mais tarde organizamos este código melhor
-sample_size = 30
+sample_size = 3
 
 
 def one_comb_multiproc_pt(params):
