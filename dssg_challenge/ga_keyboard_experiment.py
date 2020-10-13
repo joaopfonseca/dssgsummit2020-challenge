@@ -3,11 +3,11 @@ from dssg_challenge.ga.custom_problem.alskeyboard_problem import AlsKeyboardProb
 
 from dssg_challenge.ga.algorithm.ga_operators import (
     initialize_using_random, initialize_using_hc, initialize_using_greedy, initialize_using_multiple,
-    roulettewheel_selection, rank_selection, tournament_selection, 
+    roulettewheel_selection, rank_selection, tournament_selection,
     cycle_crossover, pmx_crossover, order1_crossover, heuristic_crossover, multiple_crossover,
     swap_mutation, insert_mutation, inversion_mutation, scramble_mutation, greedy_mutation, multiple_mutation,
-    elitism_replacement, standard_replacement 
-)    
+    elitism_replacement, standard_replacement
+)
 
 from dssg_challenge.ga.util.observer import LocalSearchObserver
 from copy import deepcopy
@@ -16,6 +16,7 @@ from os import listdir, path, mkdir
 from os.path import isfile, join, splitext
 from pandas import pandas as pd
 from sklearn.model_selection import ParameterGrid
+from joblib import Parallel, delayed
 
 # Problem
 #--------------------------------------------------------------------------------------------------
@@ -47,7 +48,7 @@ en_alskeyboard_problem_instance = AlsKeyboardProblem(decision_variables=en_key_d
 pt_alskeyboard_problem_instance = AlsKeyboardProblem(decision_variables=pt_key_decision_variables)
 
 
-def one_combination(problem_instance, params, param_labels, sample_size=30, 
+def one_combination(problem_instance, params, param_labels, sample_size=30,
                     log_run_dir=join(".", "data", "log_run"), log_all_dir=join(".", "data", "log_all") ):
     """
     Actually runs the algorithm with one set of parameters.
@@ -56,10 +57,10 @@ def one_combination(problem_instance, params, param_labels, sample_size=30,
     """
     if not path.exists(log_run_dir):
         mkdir(log_run_dir)
-    
+
     if not path.exists(log_all_dir):
         mkdir(log_all_dir)
-    
+
     log_labels = {i: param_labels[j] if i in ["Initialization-Approach", "Selection-Approach", "Crossover-Approach", "Mutation-Approach", "Replacement-Approach"] else str(j) for i, j in params.items()}
     log_name = "I-{Initialization-Approach}_S-{Selection-Approach}_C-{Crossover-Approach}_M-{Mutation-Approach}_R-{Replacement-Approach}_CP-{Crossover-Probability}_MP-{Mutation-Probability}_TS-{Tournament-Size}_PS-{Population-Size}_NG-{Number-of-Generations}".format(**log_labels)
     resume_name= join(log_all_dir, f"{log_name}.xlsx")
@@ -142,24 +143,24 @@ param_grid = ParameterGrid(
         {
         "Initialization-Approach": [initialize_using_random],
         "Selection-Approach": [tournament_selection],
-        "Crossover-Approach": [cycle_crossover, pmx_crossover, order1_crossover],  # multiple_crossover, heuristic_crossover, 
-        "Mutation-Approach": [inversion_mutation, swap_mutation, insert_mutation, scramble_mutation],  # multiple_mutation, greedy_mutation, 
+        "Crossover-Approach": [cycle_crossover, pmx_crossover, order1_crossover],  # multiple_crossover, heuristic_crossover,
+        "Mutation-Approach": [inversion_mutation, swap_mutation, insert_mutation, scramble_mutation],  # multiple_mutation, greedy_mutation,
         "Replacement-Approach": [elitism_replacement, standard_replacement],
         "Crossover-Probability": [0.1, 0.9, 0.95, 0.05],
         "Mutation-Probability": [0.95, 0.9, 0.1, 0.05],
         "Tournament-Size": [15, 10, 5],
-        "Population-Size": [10],  # 20
+        "Population-Size": [20],  # 20
         "Number-of-Generations": [50]  # 1000
         },
         {
         "Initialization-Approach": [initialize_using_random],
         "Selection-Approach": [roulettewheel_selection, rank_selection],
-        "Crossover-Approach": [cycle_crossover, pmx_crossover, order1_crossover],  # multiple_crossover, heuristic_crossover, 
-        "Mutation-Approach": [inversion_mutation, swap_mutation, insert_mutation, scramble_mutation],  # multiple_mutation, greedy_mutation, 
+        "Crossover-Approach": [cycle_crossover, pmx_crossover, order1_crossover],  # multiple_crossover, heuristic_crossover,
+        "Mutation-Approach": [inversion_mutation, swap_mutation, insert_mutation, scramble_mutation],  # multiple_mutation, greedy_mutation,
         "Replacement-Approach": [elitism_replacement, standard_replacement],
         "Crossover-Probability": [0.1, 0.9, 0.95, 0.05],
         "Mutation-Probability": [0.95, 0.9, 0.1, 0.05],
-        "Population-Size": [10],  # 20
+        "Population-Size": [20],  # 20
         "Number-of-Generations": [50]  # 1000
         }
     ]
@@ -168,7 +169,7 @@ param_grid = ParameterGrid(
 param_labels = {
     initialize_using_random: "rand",
     initialize_using_hc: "hc",
-    initialize_using_greedy: "greedyI", 
+    initialize_using_greedy: "greedyI",
     initialize_using_multiple: "mixIB",
     roulettewheel_selection: "rol",
     tournament_selection: "tourn",
@@ -192,10 +193,44 @@ param_labels = {
 # -------------------------------------------------------------------------------------------------
 num_comb = len(list(param_grid))
 print("The Parameter Grid has {} combinations".format(num_comb))
-for i, params in enumerate(param_grid):
-    print(f"\nStarting run number {i}")
-    one_combination(pt_alskeyboard_problem_instance, params, param_labels, sample_size=1, 
-                    log_run_dir=join(".", "data", "log_run_pt"), log_all_dir=join(".", "data", "log_all_pt"))
-    print("\n--------------------------------------------------------------------------------------------------\n")
-    one_combination(en_alskeyboard_problem_instance, params, param_labels, sample_size=1, 
-                    log_run_dir=join(".", "data", "log_run_en"), log_all_dir=join(".", "data", "log_all_en"))
+
+# Isto é memo daquelas soluções à padeiro lol
+# Depois mais tarde organizamos este código melhor
+sample_size = 30
+
+
+def one_comb_multiproc_pt(params):
+    return one_combination(
+        pt_alskeyboard_problem_instance,
+        params,
+        param_labels,
+        sample_size=sample_size,
+        log_run_dir=join(".", "data", "log_run_pt"),
+        log_all_dir=join(".", "data", "log_all_pt")
+    )
+
+
+def one_comb_multiproc_en(params):
+    return one_combination(
+        en_alskeyboard_problem_instance,
+        params,
+        param_labels,
+        sample_size=sample_size,
+        log_run_dir=join(".", "data", "log_run_en"),
+        log_all_dir=join(".", "data", "log_all_en")
+    )
+
+
+print('Running search for pt layout')
+Parallel(n_jobs=-1)(
+    delayed(one_comb_multiproc_pt)(
+        param
+    ) for param in param_grid
+)
+
+print('Running search for en layout')
+Parallel(n_jobs=-1)(
+    delayed(one_comb_multiproc_en)(
+        param
+    ) for param in param_grid
+)
