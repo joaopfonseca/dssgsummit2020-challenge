@@ -234,7 +234,6 @@ def roulettewheel_selection(population, objective, params):
     Assign to each individual a part of the roulette wheel
     Spin the wheel n times to select n individuals
 
-    REMARK: This implementation does not consider minimization problem
     """
     def _select_index_max(population):
         # Get the Total Fitness (all solutions in the population) to calculate the chances proportional to fitness
@@ -493,7 +492,11 @@ def cycle_crossover(problem, solution1, solution2):
                 offspring2.representation[idx] = solution1.representation[idx]
 
                 # get the respective index of the solution 1 for the element in solution 2
-                idx = solution1.representation.index(solution2.representation[idx])
+                if solution2.representation[idx] in solution1.representation:
+                    idx = solution1.representation.index(solution2.representation[idx])
+                else:
+                    cycle += 1  # go to the next cycle
+                    break
 
                 if idx not in index_visited:    # if the index was already visited, the cycle ends
                     index_visited.append(idx)   # if not, append to the list of visited indexes
@@ -504,7 +507,11 @@ def cycle_crossover(problem, solution1, solution2):
         else:       # when the cycle is odd
             while True:
                 # get the respective index of the solution 1 for the element in solution 2
-                idx = solution1.representation.index(solution2.representation[idx])
+                if solution2.representation[idx] in solution1.representation:
+                    idx = solution1.representation.index(solution2.representation[idx])
+                else:
+                    cycle += 1  # go to the next cycle
+                    break
 
                 if idx not in index_visited:    # if the index was already visited, the cycle ends
                     index_visited.append(idx)   # if not, append to the list of visited indexes
