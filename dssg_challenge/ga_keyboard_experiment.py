@@ -150,7 +150,7 @@ param_grid = ParameterGrid(
         "Mutation-Probability": [0.95, 0.9, 0.1, 0.05],
         "Tournament-Size": [15, 10, 5],
         "Population-Size": [20],  # 20
-        "Number-of-Generations": [50]  # 1000
+        "Number-of-Generations": [1000]  # 1000
         },
         {
         "Initialization-Approach": [initialize_using_random],
@@ -161,7 +161,7 @@ param_grid = ParameterGrid(
         "Crossover-Probability": [0.1, 0.9, 0.95, 0.05],
         "Mutation-Probability": [0.95, 0.9, 0.1, 0.05],
         "Population-Size": [20],  # 20
-        "Number-of-Generations": [50]  # 1000
+        "Number-of-Generations": [1000]  # 1000
         }
     ]
 )
