@@ -19,12 +19,12 @@ from sklearn.model_selection import ParameterGrid
 from joblib import Parallel, delayed
 
 # Problem
-#--------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Decision Variables
-with open(join(".", "data", "raw", "en-corpus.txt")) as file:
+with open(join(".", "data", "processed", "en-corpus.txt")) as file:
     en_corpus = file.read()[:-1]  # get rid of "\n"
 
-with open(join(".", "data", "raw", "en-keys.txt")) as file:
+with open(join(".", "data", "processed", "en-keys.txt")) as file:
     en_keys = file.read()[:-1]  # get rid of "\n"
 
 en_key_decision_variables = {
@@ -44,8 +44,12 @@ pt_key_decision_variables = {
 }
 
 # Problem Instance
-en_alskeyboard_problem_instance = AlsKeyboardProblem(decision_variables=en_key_decision_variables)
-pt_alskeyboard_problem_instance = AlsKeyboardProblem(decision_variables=pt_key_decision_variables)
+en_alskeyboard_problem_instance = AlsKeyboardProblem(
+    decision_variables=en_key_decision_variables
+)
+pt_alskeyboard_problem_instance = AlsKeyboardProblem(
+    decision_variables=pt_key_decision_variables
+)
 
 
 def one_combination(problem_instance, params, param_labels, sample_size=30,
