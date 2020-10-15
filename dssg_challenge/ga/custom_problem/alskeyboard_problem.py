@@ -3,8 +3,7 @@ import logging
 import random
 import os
 
-from dssg_challenge import compute_cost_ours as compute_cost
-from dssg_challenge import utils
+from dssg_challenge import compute_cost, utils
 from dssg_challenge.ga.problem.problem_template import ProblemTemplate
 from dssg_challenge.ga.problem.objective import ProblemObjective
 from dssg_challenge.ga.problem.solution import LinearSolution

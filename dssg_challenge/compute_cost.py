@@ -53,7 +53,7 @@ def compute_cost_ours(keyboard, corpus):
 
         dists = curr_rep.T @ dist_matrix @ next_rep
 
-        curr_pos = np.unravel_index(np.argmin(a),a.shape)[-1]
+        curr_pos = np.unravel_index(np.argmin(dists), dists.shape)[-1]
 
         cost+=np.min(dists)
 
@@ -95,7 +95,6 @@ def compute_cost(keyboard, corpus):
     min_cost = np.ones(len(corpus)) * np.inf
 
     while pending:
-        print(pending)
         node = heapq.heappop(pending)
         node_cost, node_char_idx, node_key_idx = node
 
@@ -106,6 +105,7 @@ def compute_cost(keyboard, corpus):
             continue
         min_cost[node_char_idx] = node_cost
 
+        # Not as accurate but waaaaaaay more efficient
         pending = []
 
         if not mapping.get(corpus[node_char_idx + 1]):
