@@ -225,12 +225,12 @@ def one_comb_multiproc_en(params):
     )
 
 
-print('Running search for pt layout')
-Parallel(n_jobs=-1)(
-    delayed(one_comb_multiproc_pt)(
-        param
-    ) for param in param_grid
-)
+# print('Running search for pt layout')
+# Parallel(n_jobs=-1)(
+#     delayed(one_comb_multiproc_pt)(
+#         param
+#     ) for param in param_grid
+# )
 
 print('Running search for en layout')
 Parallel(n_jobs=-1)(

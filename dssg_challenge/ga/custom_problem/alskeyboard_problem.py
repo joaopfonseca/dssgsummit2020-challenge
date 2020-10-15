@@ -1,9 +1,10 @@
 from copy import deepcopy
 import logging
-import random 
+import random
 import os
 
-from dssg_challenge import compute_cost, utils
+from dssg_challenge import compute_cost_ours as compute_cost
+from dssg_challenge import utils
 from dssg_challenge.ga.problem.problem_template import ProblemTemplate
 from dssg_challenge.ga.problem.objective import ProblemObjective
 from dssg_challenge.ga.problem.solution import LinearSolution
@@ -37,7 +38,7 @@ key_constraints_example = {
 # -------------------------------------------------------------------------------------------------
 class AlsKeyboardProblem(ProblemTemplate):
     """
-    ALS Keyboard Problem: Given an input corpus, what is the arrangement of keys of a given keyboard layout that 
+    ALS Keyboard Problem: Given an input corpus, what is the arrangement of keys of a given keyboard layout that
     minimizes the writting effort?
     """
 
@@ -56,20 +57,20 @@ class AlsKeyboardProblem(ProblemTemplate):
         self._corpus = ""
         if "Corpus" in decision_variables:
             self._corpus = decision_variables["Corpus"]
-        
+
         self._valid_keys = ""
         if "Valid_keys" in decision_variables:
             self._valid_keys = decision_variables["Valid_keys"]
-        
+
         # optimize the access to the constraints
-        self._exaustive = True 
+        self._exaustive = True
         if "Exaustiveness" in constraints:
             assert constraints["Exaustiveness"]
-            
+
         # update encoding_rule given decision variables to pass to Parent's constructor
         encoding_rule["Data"] = decision_variables["Valid_keys"] + "_"
 
-        # call the Parent-class constructor 
+        # call the Parent-class constructor
         super().__init__(
             decision_variables = decision_variables,
             constraints = constraints,
