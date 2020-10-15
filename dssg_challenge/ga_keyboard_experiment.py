@@ -32,10 +32,10 @@ en_key_decision_variables = {
     "Valid_keys": en_keys
 }
 
-with open(join(".", "data", "raw", "pt-corpus.txt")) as file:
+with open(join(".", "data", "processed", "pt-corpus.txt")) as file:
     pt_corpus = file.read()[:-1]  # get rid of "\n"
 
-with open(join(".", "data", "raw", "pt-keys.txt")) as file:
+with open(join(".", "data", "processed", "pt-keys.txt")) as file:
     pt_keys = file.read()[:-1]  # get rid of "\n"
 
 pt_key_decision_variables = {
