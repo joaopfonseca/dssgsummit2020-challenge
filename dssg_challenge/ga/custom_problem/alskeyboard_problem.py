@@ -8,6 +8,7 @@ from dssg_challenge.ga.problem.problem_template import ProblemTemplate
 from dssg_challenge.ga.problem.objective import ProblemObjective
 from dssg_challenge.ga.problem.solution import LinearSolution
 from dssg_challenge.ga.algorithm.hill_climbing import HillClimbing
+from dssg_challenge.ga.algorithm.ga_operators import swap_mutation, insert_mutation, inversion_mutation, scramble_mutation
 
 # TODO: set logs instead of prints
 
@@ -101,8 +102,23 @@ class AlsKeyboardProblem(ProblemTemplate):
                 encoding_rule=self._encoding_rule
             )
             return solution
+
+        elif method == "Heuristic":
+            initial_solution = LinearSolution(
+                representation=list('EINOA TCGVDURL<^SWH_Z__XJQFPBMY,#.0K?'),
+                encoding_rule=self._encoding_rule
+            )
+            if not self.is_admissible(initial_solution):
+                raise Exception("Initial solution not valid given valid keys passed.")
+
+            possible_mutations = [swap_mutation, insert_mutation, inversion_mutation, scramble_mutation]
+            mutation = random.choice(possible_mutations)
+            final_solution = mutation(self, initial_solution)
+            
+            return final_solution
+
         else:
-            raise Exception("No {} method available. Currently only 'Random' method is implemented.".format(method))
+            raise Exception("No {} method available. Currently only 'Random' and 'Heuristic' method is implemented.".format(method))
         # elif method == 'Hill Climbing':
 
         #     solution = HillClimbing(
@@ -117,7 +133,7 @@ class AlsKeyboardProblem(ProblemTemplate):
 
     # Solution Admissibility Function - is_admissible()
     #----------------------------------------------------------------------------------------------
-    def is_admissible(self, solution, debug=True):
+    def is_admissible(self, solution, debug=False):
         """
         Checks if:
             - the solution has the correct size
@@ -125,14 +141,12 @@ class AlsKeyboardProblem(ProblemTemplate):
             - the set of valid characters has every character from the solution
         If all these conditions are true, the solution is admissible and it returns True.
         """
-        if debug:
-            try:
-                utils.check_keyboard(solution.representation, self._valid_keys, self._encoding.size)
-            except:
-                # print('Invalid Solution: ', solution.representation)  # Replace by log
-                return False
-            else:
-                return True
+        try:
+            utils.check_keyboard(solution.representation, self._valid_keys, self._encoding.size)
+        except AssertionError as e:
+            if debug:
+                print(e)
+            return False
         else:
             return True
 

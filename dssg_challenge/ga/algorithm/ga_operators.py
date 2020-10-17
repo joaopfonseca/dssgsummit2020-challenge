@@ -52,6 +52,41 @@ def initialize_using_random(problem, population_size):
     return population
 
 # -------------------------------------------------------------------------------------------------
+# Initialization Random
+# -------------------------------------------------------------------------------------------------
+def initialize_using_heuristic(problem, population_size):
+    """
+    Initialize a population of solutions (feasible solution) for an evolutionary algorithm using Heuristic method
+
+    Required:
+    @ problem - problem's build solution function knows how to create an individual in accordance with the encoding.
+    @ population_size - to define the size of the population to be returned.
+    """
+    solution_list = []
+
+    # generate a population of admissible solutions (individuals)
+    for i in range(0, population_size):
+        s = problem.build_solution(method='Heuristic')
+
+        # check if the solution is admissible
+        while not problem.is_admissible(s):
+            s = problem.build_solution(method='Heuristic')
+
+        s.id = [0, i]
+
+        problem.evaluate_solution(s)
+
+        solution_list.append(s)
+
+    population = Population(
+        problem = problem,
+        maximum_size = population_size,
+        solution_list = solution_list
+    )
+
+    return population
+
+# -------------------------------------------------------------------------------------------------
 # Initialization using Hill Climbing
 # -------------------------------------------------------------------------------------------------
 def initialize_using_hc(problem, population_size):

@@ -2,7 +2,7 @@ from dssg_challenge.ga.algorithm.genetic_algorithm import GeneticAlgorithm
 from dssg_challenge.ga.custom_problem.alskeyboard_problem import AlsKeyboardProblem
 
 from dssg_challenge.ga.algorithm.ga_operators import (
-    initialize_using_random, initialize_using_hc, initialize_using_greedy, initialize_using_multiple,
+    initialize_using_random, initialize_using_heuristic, initialize_using_hc, initialize_using_greedy, initialize_using_multiple,
     roulettewheel_selection, rank_selection, tournament_selection,
     cycle_crossover, pmx_crossover, order1_crossover, heuristic_crossover, multiple_crossover,
     swap_mutation, insert_mutation, inversion_mutation, scramble_mutation, greedy_mutation, multiple_mutation,
@@ -142,7 +142,35 @@ def one_combination(problem_instance, params, param_labels, sample_size=30,
 # Parameter Configuration
 #--------------------------------------------------------------------------------------------------
 # TODO: NEED TO IMPLEMENT NEIGHBORHOOD FUNCTION - test_init = [initialize_using_multiple, initialize_using_hc, initialize_using_random]
-param_grid = ParameterGrid(
+param_grid_en = ParameterGrid(
+    [
+        {
+        "Initialization-Approach": [initialize_using_heuristic, initialize_using_random],
+        "Selection-Approach": [tournament_selection],
+        "Crossover-Approach": [cycle_crossover, pmx_crossover, order1_crossover],  # multiple_crossover, heuristic_crossover,
+        "Mutation-Approach": [inversion_mutation, swap_mutation, insert_mutation, scramble_mutation],  # multiple_mutation, greedy_mutation,
+        "Replacement-Approach": [elitism_replacement, standard_replacement],
+        "Crossover-Probability": [0.1, 0.9, 0.95, 0.05],
+        "Mutation-Probability": [0.95, 0.9, 0.1, 0.05],
+        "Tournament-Size": [15, 10, 5],
+        "Population-Size": [20],  # 20
+        "Number-of-Generations": [1000]  # 1000
+        },
+        {
+        "Initialization-Approach": [initialize_using_heuristic, initialize_using_random],
+        "Selection-Approach": [roulettewheel_selection, rank_selection],
+        "Crossover-Approach": [cycle_crossover, pmx_crossover, order1_crossover],  # multiple_crossover, heuristic_crossover,
+        "Mutation-Approach": [inversion_mutation, swap_mutation, insert_mutation, scramble_mutation],  # multiple_mutation, greedy_mutation,
+        "Replacement-Approach": [elitism_replacement, standard_replacement],
+        "Crossover-Probability": [0.1, 0.9, 0.95, 0.05],
+        "Mutation-Probability": [0.95, 0.9, 0.1, 0.05],
+        "Population-Size": [20],  # 20
+        "Number-of-Generations": [1000]  # 1000
+        }
+    ]
+)
+
+param_grid_pt = ParameterGrid(
     [
         {
         "Initialization-Approach": [initialize_using_random],
@@ -172,6 +200,7 @@ param_grid = ParameterGrid(
 
 param_labels = {
     initialize_using_random: "rand",
+    initialize_using_heuristic: "heur",
     initialize_using_hc: "hc",
     initialize_using_greedy: "greedyI",
     initialize_using_multiple: "mixIB",
@@ -195,9 +224,6 @@ param_labels = {
 
 # Performs Grid Search over possible parameters
 # -------------------------------------------------------------------------------------------------
-num_comb = len(list(param_grid))
-print("The Parameter Grid has {} combinations".format(num_comb))
-
 # Isto é memo daquelas soluções à padeiro lol
 # Depois mais tarde organizamos este código melhor
 sample_size = 3
@@ -226,15 +252,19 @@ def one_comb_multiproc_en(params):
 
 
 # print('Running search for pt layout')
+# num_comb_pt = len(list(param_grid_pt))
+# print("The Parameter Grid has {} combinations".format(num_comb_pt))
 # Parallel(n_jobs=-1)(
 #     delayed(one_comb_multiproc_pt)(
 #         param
-#     ) for param in param_grid
+#     ) for param in param_grid_pt
 # )
 
+num_comb_en = len(list(param_grid_en))
+print("The Parameter Grid has {} combinations".format(num_comb_en))
 print('Running search for en layout')
 Parallel(n_jobs=-1)(
     delayed(one_comb_multiproc_en)(
         param
-    ) for param in param_grid
+    ) for param in param_grid_en
 )
