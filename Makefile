@@ -20,6 +20,10 @@ endif
 # COMMANDS                                                                      #
 #################################################################################
 
+## Make preprocessed data
+data: data/raw/CETEMPublico1.7 data/raw/bbc/README.TXT
+	$(PYTHON_INTERPRETER) dssg_challenge/ga/corpus_preprocessing.py
+
 ## Install Python Dependencies
 requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
@@ -43,7 +47,7 @@ ifeq (3,$(findstring 3,$(PYTHON_INTERPRETER)))
 else
 	conda create --name $(PROJECT_NAME) python=2.7
 endif
-		@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
+	@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
 else
 	$(PYTHON_INTERPRETER) -m pip install -q virtualenv virtualenvwrapper
 	@echo ">>> Installing virtualenvwrapper if not already installed.\nMake sure the following lines are in shell startup file\n\
@@ -56,6 +60,15 @@ endif
 test_environment:
 	$(PYTHON_INTERPRETER) test_environment.py
 
+#################################################################################
+# PROJECT RULES                                                                 #
+#################################################################################
+
+data/raw/CETEMPublico1.7:
+	@ ">>> Portuguese corpus hasn't been downloaded yet. Please follow the instructions on README."
+
+data/raw/bbc/README.TXT:
+	@ ">>> English corpus hasn't been downloaded yet. Please follow the instructions on README."
 
 #################################################################################
 # Self Documenting Commands                                                     #
